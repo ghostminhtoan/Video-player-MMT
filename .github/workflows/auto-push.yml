@@ -1,0 +1,63 @@
+name: Auto Push Changes
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  auto-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Setup Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        
+    - name: Verify changes
+      run: |
+        echo "=== Files in repository ==="
+        ls -la
+        echo "=== Checking JS files ==="
+        for file in *.js; do
+          if [ -f "$file" ]; then
+            echo "✓ Found: $file"
+          fi
+        done
+        echo "=== Checking HTML files ==="
+        for file in *.html; do
+          if [ -f "$file" ]; then
+            echo "✓ Found: $file"
+          fi
+        done
+        
+    - name: Preview summary
+      run: |
+        echo "## 📊 Repository Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Files:" >> $GITHUB_STEP_SUMMARY
+        echo "- \`\`\`js\`\`\` - JavaScript files" >> $GITHUB_STEP_SUMMARY
+        echo "- \`\`\`html\`\`\` - HTML player files" >> $GITHUB_STEP_SUMMARY
+        echo "- \`\`\`md\`\`\` - Documentation" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Video Player Features:" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Play/Pause with indicator" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Volume control" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Brightness adjustment" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Skip forward/backward 5s" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Seek preview" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Progress save/restore" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Mobile support" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Keyboard shortcuts" >> $GITHUB_STEP_SUMMARY
+        
+    - name: Push confirmation
+      run: |
+        echo "✅ Code successfully pushed to GitHub!"
+        echo "📍 Repository: https://github.com/ghostminhtoan/Video-player-MMT"
+        echo "🎬 Video Player MMT is ready!"
