@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(raw.githubusercontent.com)",
+      "WebFetch(cdn.jsdelivr.net)",
+      "Bash(npx *)",
+      "Bash(npm install *)",
+      "Bash(npm init *)"
+    ]
+  },
+  "$version": 3
+}

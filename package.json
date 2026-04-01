@@ -1,0 +1,24 @@
+{
+  "name": "video-player-mmt",
+  "version": "1.0.0",
+  "description": "Một video player hiện đại sử dụng ArtPlayer.js và Video.js với nhiều tính năng cao cấp.",
+  "main": "artplayer mmt.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ghostminhtoan/Video-player-MMT.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ghostminhtoan/Video-player-MMT/issues"
+  },
+  "homepage": "https://github.com/ghostminhtoan/Video-player-MMT#readme",
+  "dependencies": {
+    "js-beautify": "^1.15.4"
+  }
+}
