@@ -1,0 +1,1505 @@
+<!--
+    MMT Video Player for Blogspot
+    Copy toàn bộ code này vào bài viết (chế độ HTML view)
+-->
+
+<div class="mmt-player-container" data-url="https://github.com/ghostminhtoan/private/releases/download/draft.picture/subtitle.edit.single.word.mp4">
+    <style>
+        /* ==================== MAIN CONTAINER ==================== */
+        .mmt-player-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .mmt-player-container * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .mmt-player-container video {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: pointer;
+        }
+
+        .mmt-player-container.art-hide-cursor {
+            cursor: none;
+        }
+
+        .mmt-player-container.art-hover {
+            cursor: pointer;
+        }
+
+        /* ==================== VIDEO FLIP ==================== */
+        .mmt-player-container[data-flip="horizontal"] .mmt-video {
+            transform: scaleX(-1);
+        }
+
+        .mmt-player-container[data-flip="vertical"] .mmt-video {
+            transform: scaleY(-1);
+        }
+
+        .mmt-player-container[data-flip="both"] .mmt-video {
+            transform: scaleX(-1) scaleY(-1);
+        }
+
+        /* ==================== CENTER INDICATORS ==================== */
+        .mmt-center-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+        }
+
+        .mmt-center-indicator.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .mmt-center-indicator svg {
+            width: 40px;
+            height: 40px;
+            fill: #fff;
+        }
+
+        /* ==================== VOLUME INDICATOR ==================== */
+        .mmt-volume-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mmt-volume-indicator.show { opacity: 1; }
+
+        .mmt-volume-bar {
+            width: 80px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .mmt-volume-bar-fill {
+            height: 100%;
+            background: #00d1b2;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        /* ==================== BRIGHTNESS INDICATOR ==================== */
+        .mmt-brightness-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mmt-brightness-indicator.show { opacity: 1; }
+
+        .mmt-brightness-bar {
+            width: 80px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .mmt-brightness-bar-fill {
+            height: 100%;
+            background: #ffd700;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        /* ==================== SPEED INDICATOR ==================== */
+        .mmt-speed-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mmt-speed-indicator.show { opacity: 1; }
+
+        .mmt-speed-value {
+            font-size: 22px;
+            color: #00ced1;
+        }
+
+        /* ==================== SKIP INDICATOR ==================== */
+        .mmt-skip-indicator {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mmt-skip-indicator.show { opacity: 1; }
+        .mmt-skip-indicator.left { left: 20px; }
+        .mmt-skip-indicator.right { right: 20px; }
+        .mmt-skip-text { font-size: 14px; color: rgba(255, 255, 255, 0.8); }
+
+        /* ==================== SEEK PREVIEW ==================== */
+        .mmt-seek-preview {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9) !important;
+            color: #fff !important;
+            padding: 8px 15px !important;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 1000 !important;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .mmt-seek-preview.show { opacity: 1 !important; }
+
+        .mmt-seek-preview-delta {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .mmt-seek-preview-delta.positive { color: #00ced1 !important; }
+        .mmt-seek-preview-delta.negative { color: #ff8c00 !important; }
+
+        .mmt-seek-preview-time {
+            font-size: 16px;
+            color: #fff !important;
+        }
+
+        /* ==================== RESOLUTION DISPLAY ==================== */
+        .mmt-resolution-display {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 200;
+            pointer-events: none;
+        }
+
+        /* ==================== BRIGHTNESS OVERLAY ==================== */
+        .mmt-brightness-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            z-index: 50;
+            pointer-events: none;
+            transition: background 0.1s ease;
+        }
+
+        /* ==================== DOUBLE TAP INDICATOR ==================== */
+        .mmt-double-tap-indicator {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .mmt-double-tap-indicator.show { opacity: 1; }
+        .mmt-double-tap-indicator.left { left: 15%; }
+        .mmt-double-tap-indicator.right { right: 15%; }
+        .mmt-double-tap-indicator svg { width: 24px; height: 24px; fill: #fff; }
+
+        /* ==================== RESUME PROMPT ==================== */
+        .mmt-resume-prompt {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 20px 25px;
+            border-radius: 12px;
+            font-size: 14px;
+            z-index: 500;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .mmt-resume-prompt:hover { background: rgba(0, 0, 0, 0.95); }
+
+        .mmt-resume-prompt-time {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00ced1;
+        }
+
+        .mmt-resume-prompt-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .mmt-resume-prompt-btn {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mmt-resume-prompt-btn-primary {
+            background: #00ced1;
+            color: #000;
+        }
+
+        .mmt-resume-prompt-btn-primary:hover { background: #00b5b5; }
+
+        .mmt-resume-prompt-btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .mmt-resume-prompt-btn-secondary:hover { background: rgba(255, 255, 255, 0.3); }
+
+        /* ==================== CONTROL BAR ==================== */
+        .mmt-control-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+            padding: 8px 12px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .mmt-player-container.art-hover .mmt-control-bar { opacity: 1; }
+
+        .mmt-control-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+        }
+
+        .mmt-control-btn:hover { opacity: 0.8; }
+        .mmt-control-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+        .mmt-progress-container {
+            flex: 1;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .mmt-progress-loaded {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 3px;
+            width: 0%;
+        }
+
+        .mmt-progress-played {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: #00ced1;
+            border-radius: 3px;
+            width: 0%;
+        }
+
+        .mmt-progress-indicator {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            left: 0%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .mmt-time-display {
+            color: #fff;
+            font-size: 11px;
+            font-weight: bold;
+            min-width: 85px;
+            text-align: center;
+        }
+
+        /* ==================== VOLUME SLIDER ==================== */
+        .mmt-volume-slider-panel {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 8px;
+            padding: 10px 15px;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mmt-volume-slider-panel.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .mmt-volume-slider-container {
+            width: 6px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .mmt-volume-slider-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #00ced1;
+            border-radius: 3px;
+            height: 50%;
+        }
+
+        .mmt-volume-slider-handle {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform: translate(-50%, 50%);
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .mmt-volume-value {
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+
+    <!-- Video Element -->
+    <video class="mmt-video" playsinline webkit-playsinline preload="metadata">
+        Your browser does not support HTML5 video.
+    </video>
+
+    <!-- UI Elements -->
+    <div class="mmt-brightness-overlay"></div>
+    <div class="mmt-resolution-display">-- x --</div>
+    <div class="mmt-center-indicator mmt-play-pause-indicator"></div>
+    
+    <div class="mmt-volume-indicator">
+        <span class="mmt-volume-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        </span>
+        <span class="mmt-volume-text">100%</span>
+        <div class="mmt-volume-bar"><div class="mmt-volume-bar-fill"></div></div>
+    </div>
+
+    <div class="mmt-brightness-indicator">
+        <span class="mmt-brightness-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
+        </span>
+        <span class="mmt-brightness-text">100%</span>
+        <div class="mmt-brightness-bar"><div class="mmt-brightness-bar-fill"></div></div>
+    </div>
+
+    <div class="mmt-speed-indicator">
+        <span class="mmt-speed-icon">
+            <svg viewBox="0 0 24 24"><path d="M20.38 8.57l-1.23 1.85a8 8 0 0 1-.22 7.58H5.07A8 8 0 0 1 15.58 6.85l1.85-1.23A10 10 0 0 0 3.35 19a2 2 0 0 0 1.72 1h13.85a2 2 0 0 0 1.74-1 10 10 0 0 0-.27-10.44zm-9.79 6.84a2 2 0 0 0 2.83 0l5.66-8.49-8.49 5.66a2 2 0 0 0 0 2.83z"/></svg>
+        </span>
+        <span class="mmt-speed-value">1.0x</span>
+    </div>
+
+    <div class="mmt-skip-indicator left">
+        <span class="mmt-skip-icon">
+            <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+        </span>
+        <span class="mmt-skip-text">-5s</span>
+    </div>
+
+    <div class="mmt-skip-indicator right">
+        <span class="mmt-skip-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+        </span>
+        <span class="mmt-skip-text">+5s</span>
+    </div>
+
+    <div class="mmt-seek-preview">
+        <span class="mmt-seek-preview-delta">+10s</span>
+        <span class="mmt-seek-preview-time">01:23</span>
+    </div>
+
+    <div class="mmt-double-tap-indicator left">
+        <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+    </div>
+
+    <div class="mmt-double-tap-indicator right">
+        <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+    </div>
+
+    <div class="mmt-resume-prompt">
+        <div>Tiếp tục xem từ vị trí cũ?</div>
+        <div class="mmt-resume-prompt-time">00:00</div>
+        <div class="mmt-resume-prompt-buttons">
+            <button class="mmt-resume-prompt-btn mmt-resume-prompt-btn-primary">Có</button>
+            <button class="mmt-resume-prompt-btn mmt-resume-prompt-btn-secondary">Không</button>
+        </div>
+    </div>
+
+    <div class="mmt-control-bar">
+        <button class="mmt-control-btn mmt-play-pause-btn">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="mmt-progress-container">
+            <div class="mmt-progress-loaded"></div>
+            <div class="mmt-progress-played"></div>
+            <div class="mmt-progress-indicator"></div>
+        </div>
+        <div class="mmt-time-display">
+            <span class="mmt-current-time">00:00</span> / <span class="mmt-duration">00:00</span>
+        </div>
+        <button class="mmt-control-btn mmt-volume-btn">
+            <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        </button>
+        <button class="mmt-control-btn mmt-fullscreen-btn">
+            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+        </button>
+    </div>
+
+    <!-- Volume Slider Panel -->
+    <div class="mmt-volume-slider-panel">
+        <div class="mmt-volume-value">100%</div>
+        <div class="mmt-volume-slider-container">
+            <div class="mmt-volume-slider-fill"></div>
+            <div class="mmt-volume-slider-handle"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    // ==================== CONSTANTS ====================
+    const PLAYBACK_RATES = [
+        0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
+        1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0,
+        2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0,
+        3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0
+    ];
+    const SEEK_TIME = 5;
+    const FAST_SEEK_TIME = 10;
+    const VOLUME_STEP = 0.1;
+    const HOLD_DELAY = 300;
+    const DOUBLE_TAP_DELAY = 300;
+    const DOUBLE_TAP_ZONE = 0.25;
+    const STORAGE_KEY_PREFIX = 'mmt_blogspot_progress_';
+
+    // ==================== HELPER FUNCTIONS ====================
+    function formatTime(seconds) {
+        if (isNaN(seconds) || !isFinite(seconds)) return '00:00';
+        const mins = Math.floor(Math.abs(seconds) / 60);
+        const secs = Math.floor(Math.abs(seconds) % 60);
+        const sign = seconds < 0 ? '-' : '';
+        return sign + (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+    }
+
+    function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    function addClass(el, className) {
+        el && el.classList.add(className);
+    }
+
+    function removeClass(el, className) {
+        el && el.classList.remove(className);
+    }
+
+    function isMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+    // ==================== PLAYER CLASS ====================
+    class MMTBlogspotPlayer {
+        constructor(container) {
+            this.container = container;
+            this.video = container.querySelector('.mmt-video');
+            this.template = {};
+            this.timers = {};
+            this.state = {
+                playing: false,
+                muted: false,
+                volume: 0.5,
+                brightness: 1,
+                playbackRate: 1.0,
+                duration: 0,
+                currentTime: 0,
+                isFullscreen: false,
+                isDragging: false
+            };
+            this.gesture = {
+                startX: 0, startY: 0, startVolume: 0, startBrightness: 0,
+                isSwiping: false, swipeDirection: null,
+                lastTapTime: 0, tapPosition: 0,
+                holdTimer: null, isHolding: false
+            };
+
+            this.init();
+        }
+
+        init() {
+            this.cacheElements();
+            this.loadVideoUrl();
+            this.bindEvents();
+            this.loadProgress();
+        }
+
+        cacheElements() {
+            const t = this.template;
+            t.brightnessOverlay = this.container.querySelector('.mmt-brightness-overlay');
+            t.resolution = this.container.querySelector('.mmt-resolution-display');
+            t.playPauseIndicator = this.container.querySelector('.mmt-play-pause-indicator');
+            t.volumeIndicator = this.container.querySelector('.mmt-volume-indicator');
+            t.brightnessIndicator = this.container.querySelector('.mmt-brightness-indicator');
+            t.speedIndicator = this.container.querySelector('.mmt-speed-indicator');
+            t.skipLeft = this.container.querySelector('.mmt-skip-indicator.left');
+            t.skipRight = this.container.querySelector('.mmt-skip-indicator.right');
+            t.seekPreview = this.container.querySelector('.mmt-seek-preview');
+            t.doubleTapLeft = this.container.querySelector('.mmt-double-tap-indicator.left');
+            t.doubleTapRight = this.container.querySelector('.mmt-double-tap-indicator.right');
+            t.resumePrompt = this.container.querySelector('.mmt-resume-prompt');
+            t.controlBar = this.container.querySelector('.mmt-control-bar');
+            t.playPauseBtn = this.container.querySelector('.mmt-play-pause-btn');
+            t.progressContainer = this.container.querySelector('.mmt-progress-container');
+            t.progressLoaded = this.container.querySelector('.mmt-progress-loaded');
+            t.progressPlayed = this.container.querySelector('.mmt-progress-played');
+            t.progressIndicator = this.container.querySelector('.mmt-progress-indicator');
+            t.currentTimeEl = this.container.querySelector('.mmt-current-time');
+            t.durationEl = this.container.querySelector('.mmt-duration');
+            t.volumeBtn = this.container.querySelector('.mmt-volume-btn');
+            t.fullscreenBtn = this.container.querySelector('.mmt-fullscreen-btn');
+            t.volumeSliderPanel = this.container.querySelector('.mmt-volume-slider-panel');
+            t.volumeSliderContainer = this.container.querySelector('.mmt-volume-slider-container');
+            t.volumeSliderFill = this.container.querySelector('.mmt-volume-slider-fill');
+            t.volumeSliderHandle = this.container.querySelector('.mmt-volume-slider-handle');
+            t.volumeSliderValue = this.container.querySelector('.mmt-volume-value');
+        }
+
+        loadVideoUrl() {
+            const url = this.container.getAttribute('data-url');
+            if (url) {
+                this.video.src = url;
+            }
+        }
+
+        bindEvents() {
+            const { video, container } = this;
+
+            // Video events
+            video.addEventListener('loadedmetadata', () => this.onLoadedMetadata());
+            video.addEventListener('play', () => this.onPlay());
+            video.addEventListener('pause', () => this.onPause());
+            video.addEventListener('timeupdate', () => this.onTimeUpdate());
+            video.addEventListener('progress', () => this.onProgress());
+            video.addEventListener('volumechange', () => this.onVolumeChange());
+            video.addEventListener('ended', () => this.onEnded());
+
+            // Click to play/pause - chỉ toggle khi không phải mobile
+            container.addEventListener('click', (e) => {
+                if (!this.gesture.isSwiping && !isMobile()) {
+                    this.toggle();
+                }
+            });
+
+            // Mouse move
+            container.addEventListener('mousemove', () => this.showControlBar());
+            container.addEventListener('mouseleave', () => this.hideControlBar());
+
+            // Keyboard
+            document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+
+            // Control bar buttons
+            this.template.playPauseBtn.addEventListener('click', (e) => { e.stopPropagation(); this.toggle(); });
+            this.template.fullscreenBtn.addEventListener('click', (e) => { e.stopPropagation(); this.toggleFullscreen(); });
+            this.template.volumeBtn.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                if (isMobile()) {
+                    this.toggleVolumeSlider();
+                } else {
+                    this.toggleMute();
+                }
+            });
+
+            // Desktop: Hover vào volume btn để hiển thị slider
+            if (!isMobile()) {
+                this.template.volumeBtn.addEventListener('mouseenter', () => {
+                    this.showVolumeSlider();
+                });
+                
+                // Giữ slider hiển thị khi di chuột vào slider
+                this.template.volumeSliderPanel.addEventListener('mouseenter', () => {
+                    addClass(this.template.volumeSliderPanel, 'show');
+                });
+                
+                this.template.volumeSliderPanel.addEventListener('mouseleave', () => {
+                    this.hideVolumeSlider();
+                });
+                
+                this.template.volumeBtn.addEventListener('mouseleave', () => {
+                    // Delay một chút để slider không ẩn ngay khi di chuột ra ngoài
+                    setTimeout(() => {
+                        if (!this.template.volumeSliderPanel.matches(':hover') && !this.template.volumeBtn.matches(':hover')) {
+                            this.hideVolumeSlider();
+                        }
+                    }, 100);
+                });
+            }
+
+            // Volume slider events
+            this.bindVolumeSliderEvents();
+
+            // Progress bar
+            this.bindProgressEvents();
+
+            // Desktop: Hold + Drag trên video container để tua
+            if (!isMobile()) {
+                this.bindVideoDragEvents();
+            }
+
+            // Touch gestures
+            if (isMobile()) {
+                this.bindTouchEvents();
+            }
+
+            // Fullscreen change
+            document.addEventListener('fullscreenchange', () => this.onFullscreenChange());
+            document.addEventListener('webkitfullscreenchange', () => this.onFullscreenChange());
+
+            // Resize
+            window.addEventListener('resize', () => this.updateResolution());
+
+            // Resume prompt
+            const resumeBtns = this.template.resumePrompt.querySelectorAll('.mmt-resume-prompt-btn');
+            resumeBtns[0].addEventListener('click', (e) => { e.stopPropagation(); this.resumeFromStorage(); });
+            resumeBtns[1].addEventListener('click', (e) => { e.stopPropagation(); this.hideResumePrompt(); });
+        }
+
+        bindVideoDragEvents() {
+            const { container } = this;
+            let isDragging = false;
+            let holdTimer = null;
+            let isHoldMode = false;
+            let holdStartX = 0;
+            let seekPreviewTime = 0;
+            const HOLD_DELAY = 200; // 200ms để kích hoạt hold mode
+
+            const endDrag = (e) => {
+                if (!isDragging) return;
+                clearTimeout(holdTimer);
+                isDragging = false;
+                container.style.cursor = '';
+                
+                if (isHoldMode) {
+                    // Hold mode: tua đến thời gian đã preview
+                    this.seek(seekPreviewTime);
+                }
+                
+                this.hideSeekPreview();
+                isHoldMode = false;
+            };
+
+            // Mouse events trên video container
+            container.addEventListener('mousedown', (e) => {
+                // Bỏ qua nếu click vào control bar hoặc progress bar
+                if (e.target.closest('.mmt-control-bar') || e.target.closest('.mmt-progress-container')) return;
+                
+                isDragging = true;
+                holdStartX = e.clientX;
+                isHoldMode = false;
+                seekPreviewTime = this.state.currentTime;
+                
+                // Set timer để kích hoạt hold mode sau 200ms
+                holdTimer = setTimeout(() => {
+                    if (isDragging) {
+                        isHoldMode = true;
+                        container.style.cursor = 'grabbing';
+                    }
+                }, HOLD_DELAY);
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging || !isHoldMode) return;
+                
+                // Hold mode: rê chuột ngang để tua (relative seeking)
+                e.preventDefault();
+                const deltaX = e.clientX - holdStartX;
+                const rect = container.getBoundingClientRect();
+                // Mỗi pixel = 1% thời lượng video
+                const timeDelta = (deltaX / rect.width) * this.state.duration;
+                const targetTime = clamp(this.state.currentTime + timeDelta, 0, this.state.duration);
+                seekPreviewTime = targetTime;
+                this.updateSeekPreview(targetTime);
+            });
+            
+            document.addEventListener('mouseup', endDrag);
+        }
+
+        bindProgressEvents() {
+            const { progressContainer } = this.template;
+            let isDragging = false;
+
+            const getProgress = (e) => {
+                const rect = progressContainer.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const x = clamp(clientX - rect.left, 0, rect.width);
+                return { percentage: x / rect.width, time: (x / rect.width) * this.state.duration };
+            };
+
+            const updateProgress = (e) => {
+                if (!isDragging) return;
+                const { percentage, time } = getProgress(e);
+                this.updateProgressUI(percentage);
+                this.updateSeekPreview(time);
+            };
+
+            const endDrag = (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                const { time } = getProgress(e);
+                this.seek(time, true); // Luôn play sau khi tua
+                this.hideSeekPreview();
+            };
+
+            // Desktop mouse events
+            progressContainer.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                isDragging = true;
+                updateProgress(e);
+            });
+            document.addEventListener('mousemove', updateProgress);
+            document.addEventListener('mouseup', endDrag);
+
+            // Touch events cho progress bar (mobile)
+            progressContainer.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                updateProgress(e);
+            }, { passive: true });
+
+            progressContainer.addEventListener('touchmove', (e) => {
+                if (isDragging) {
+                    e.preventDefault();
+                    updateProgress(e);
+                }
+            }, { passive: false });
+
+            progressContainer.addEventListener('touchend', (e) => {
+                if (isDragging) {
+                    isDragging = false;
+                    const { time } = getProgress(e);
+                    this.seek(time, false);
+                    this.hideSeekPreview();
+                }
+            }, { passive: true });
+
+            // Click event trên progress bar - luôn play
+            progressContainer.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!isDragging) {
+                    const { time } = getProgress(e);
+                    this.seek(time, true);
+                }
+            });
+
+            // Hover preview (chỉ desktop)
+            if (!isMobile()) {
+                progressContainer.addEventListener('mouseenter', () => {
+                    progressContainer.addEventListener('mousemove', (e) => {
+                        if (!isDragging) {
+                            const rect = progressContainer.getBoundingClientRect();
+                            const x = e.clientX - rect.left;
+                            const time = (x / rect.width) * this.state.duration;
+                            this.updateSeekPreview(time);
+                        }
+                    });
+                });
+
+                progressContainer.addEventListener('mouseleave', () => {
+                    this.hideSeekPreview();
+                });
+            }
+        }
+
+        bindTouchEvents() {
+            const { container } = this;
+            let lastTapTime = 0;
+            let lastTapPosition = 0;
+
+            container.addEventListener('touchstart', (e) => {
+                if (e.touches.length !== 1) return;
+                const touch = e.touches[0];
+                const rect = container.getBoundingClientRect();
+                const x = (touch.clientX - rect.left) / rect.width;
+
+                this.gesture.startX = touch.clientX;
+                this.gesture.startY = touch.clientY;
+                this.gesture.startVolume = this.video.volume;
+                this.gesture.startBrightness = this.state.brightness;
+                this.gesture.isSwiping = false;
+                this.gesture.tapPosition = x;
+
+                this.gesture.holdTimer = setTimeout(() => { this.gesture.isHolding = true; }, HOLD_DELAY);
+            }, { passive: true });
+
+            container.addEventListener('touchmove', (e) => {
+                if (e.touches.length !== 1) return;
+                const touch = e.touches[0];
+                const deltaX = touch.clientX - this.gesture.startX;
+                const deltaY = touch.clientY - this.gesture.startY;
+
+                if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+                    clearTimeout(this.gesture.holdTimer);
+                    this.gesture.isHolding = false;
+                }
+
+                if (!this.gesture.isSwiping && (Math.abs(deltaX) > 20 || Math.abs(deltaY) > 20)) {
+                    this.gesture.isSwiping = true;
+                    this.gesture.swipeDirection = Math.abs(deltaX) > Math.abs(deltaY) ? 'horizontal' : 'vertical';
+                }
+
+                if (!this.gesture.isSwiping || !this.state.isFullscreen) return;
+                e.preventDefault();
+
+                const rect = container.getBoundingClientRect();
+
+                if (this.gesture.swipeDirection === 'vertical') {
+                    if (this.gesture.tapPosition < 0.5) {
+                        this.adjustBrightness(-deltaY / rect.height);
+                    } else {
+                        this.adjustVolume(-deltaY / rect.height);
+                    }
+                } else if (this.gesture.swipeDirection === 'horizontal') {
+                    // Swipe ngang - tua video với preview
+                    const delta = deltaX * 0.5;
+                    const targetTime = this.state.currentTime + delta;
+                    this.updateSeekPreview(targetTime);
+                    // Lưu target time để tua khi touchend
+                    this.gesture.seekTarget = targetTime;
+                }
+            }, { passive: false });
+
+            container.addEventListener('touchend', (e) => {
+                clearTimeout(this.gesture.holdTimer);
+                const now = Date.now();
+                const timeSinceLastTap = now - lastTapTime;
+                const isDoubleTap = timeSinceLastTap < DOUBLE_TAP_DELAY;
+                const samePosition = Math.abs(this.gesture.tapPosition - lastTapPosition) < 0.1;
+
+                // Xử lý double tap
+                if (isDoubleTap && samePosition && !this.gesture.isSwiping) {
+                    if (this.gesture.tapPosition < DOUBLE_TAP_ZONE) {
+                        // Double tap trái: tua lùi
+                        this.showDoubleTap('left');
+                        this.seek(this.state.currentTime - SEEK_TIME, false);
+                    } else if (this.gesture.tapPosition > 1 - DOUBLE_TAP_ZONE) {
+                        // Double tap phải: tua tới
+                        this.showDoubleTap('right');
+                        this.seek(this.state.currentTime + SEEK_TIME, false);
+                    } else {
+                        // Double tap giữa: play/pause
+                        this.toggle();
+                    }
+                    lastTapTime = 0;
+                    lastTapPosition = 0;
+                } else {
+                    // Lưu thông tin tap hiện tại để check double tap
+                    lastTapTime = now;
+                    lastTapPosition = this.gesture.tapPosition;
+                }
+
+                // Xử lý swipe ngang - tua video
+                if (this.gesture.isSwiping && this.gesture.swipeDirection === 'horizontal' && this.gesture.seekTarget !== undefined) {
+                    this.seek(this.gesture.seekTarget, false); // Không auto play khi swipe
+                    this.hideSeekPreview();
+                    delete this.gesture.seekTarget;
+                }
+
+                this.gesture.isSwiping = false;
+                this.gesture.isHolding = false;
+            }, { passive: true });
+        }
+
+        handleKeyboard(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            switch (e.key) {
+                case ' ': case 'k': case 'K': e.preventDefault(); this.toggle(); break;
+                case 'ArrowRight': e.preventDefault(); this.seek(this.state.currentTime + SEEK_TIME, true); this.showSkip('right'); break;
+                case 'ArrowLeft': e.preventDefault(); this.seek(this.state.currentTime - SEEK_TIME, true); this.showSkip('left'); break;
+                case 'ArrowUp': e.preventDefault(); this.adjustVolume(VOLUME_STEP); break;
+                case 'ArrowDown': e.preventDefault(); this.adjustVolume(-VOLUME_STEP); break;
+                case 'j': case 'J': e.preventDefault(); this.seek(this.state.currentTime - FAST_SEEK_TIME, true); this.showSkip('left'); break;
+                case 'l': case 'L': e.preventDefault(); this.seek(this.state.currentTime + FAST_SEEK_TIME, true); this.showSkip('right'); break;
+                case 'f': case 'F': e.preventDefault(); this.toggleFullscreen(); break;
+                case 'm': case 'M': e.preventDefault(); this.toggleMute(); break;
+                case ',': case '<': if (e.ctrlKey) { e.preventDefault(); this.changePlaybackRate(-1); } break;
+                case '.': case '>': if (e.ctrlKey) { e.preventDefault(); this.changePlaybackRate(1); } break;
+                case '/': if (e.shiftKey) { e.preventDefault(); this.setPlaybackRate(1.0); } break;
+            }
+        }
+
+        // ==================== EVENT HANDLERS ====================
+        onLoadedMetadata() {
+            this.state.duration = this.video.duration;
+            this.updateResolution();
+            this.updateDurationUI();
+            this.saveProgress();
+        }
+
+        onPlay() {
+            this.state.playing = true;
+            this.updatePlayPauseUI();
+            this.showPlayPauseIndicator(true);
+            this.hideResumePrompt();
+        }
+
+        onPause() {
+            this.state.playing = false;
+            this.updatePlayPauseUI();
+            this.showPlayPauseIndicator(false);
+            this.saveProgress();
+        }
+
+        onTimeUpdate() {
+            this.state.currentTime = this.video.currentTime;
+            this.updateProgressUI(this.video.currentTime / this.state.duration);
+            this.updateTimeUI();
+            this.saveProgress();
+        }
+
+        onProgress() {
+            const buffered = this.video.buffered;
+            if (buffered.length > 0) {
+                const loaded = buffered.end(buffered.length - 1) / this.state.duration;
+                this.template.progressLoaded.style.width = (loaded * 100) + '%';
+            }
+        }
+
+        onVolumeChange() {
+            this.state.volume = this.video.volume;
+            this.state.muted = this.video.muted;
+            this.updateVolumeUI();
+        }
+
+        onEnded() {
+            this.state.playing = false;
+            this.updatePlayPauseUI();
+        }
+
+        onFullscreenChange() {
+            this.state.isFullscreen = !!document.fullscreenElement || !!document.webkitFullscreenElement;
+        }
+
+        updateResolution() {
+            if (this.video.videoWidth && this.video.videoHeight) {
+                this.template.resolution.textContent = this.video.videoWidth + 'x' + this.video.videoHeight;
+            }
+        }
+
+        // ==================== UI UPDATES ====================
+        updatePlayPauseUI() {
+            const playIcon = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+            const pauseIcon = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+            const icon = this.state.playing ? pauseIcon : playIcon;
+            this.template.playPauseBtn.innerHTML = icon;
+            this.template.playPauseIndicator.innerHTML = icon;
+        }
+
+        updateProgressUI(percentage) {
+            percentage = clamp(percentage, 0, 1);
+            this.template.progressPlayed.style.width = (percentage * 100) + '%';
+            this.template.progressIndicator.style.left = (percentage * 100) + '%';
+        }
+
+        updateTimeUI() {
+            this.template.currentTimeEl.textContent = formatTime(this.state.currentTime);
+            this.template.durationEl.textContent = formatTime(this.state.duration);
+        }
+
+        updateDurationUI() {
+            this.template.durationEl.textContent = formatTime(this.state.duration);
+        }
+
+        updateVolumeUI() {
+            const vol = this.state.volume;
+            const percent = Math.round(vol * 100);
+            const volText = this.template.volumeIndicator.querySelector('.mmt-volume-text');
+            const volBar = this.template.volumeIndicator.querySelector('.mmt-volume-bar-fill');
+            const volIcon = this.template.volumeIndicator.querySelector('.mmt-volume-icon');
+            const muteIcon = '<svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+            const lowIcon = '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>';
+            const highIcon = '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+
+            volText.textContent = percent + '%';
+            volBar.style.width = percent + '%';
+            this.template.volumeBtn.innerHTML = vol === 0 ? muteIcon : (vol < 0.5 ? lowIcon : highIcon);
+            volIcon.innerHTML = vol === 0 ? muteIcon : (vol < 0.5 ? lowIcon : highIcon);
+            
+            // Cập nhật volume slider panel
+            this.updateVolumeSliderUI();
+        }
+
+        updateBrightnessUI(value) {
+            const percent = Math.round(value * 100);
+            const brightText = this.template.brightnessIndicator.querySelector('.mmt-brightness-text');
+            const brightBar = this.template.brightnessIndicator.querySelector('.mmt-brightness-bar-fill');
+            brightText.textContent = percent + '%';
+            brightBar.style.width = percent + '%';
+            this.template.brightnessOverlay.style.background = 'rgba(0, 0, 0, ' + (1 - value) + ')';
+        }
+
+        updateSpeedUI() {
+            this.template.speedIndicator.querySelector('.mmt-speed-value').textContent = this.state.playbackRate.toFixed(1) + 'x';
+        }
+
+        // ==================== INDICATORS ====================
+        showPlayPauseIndicator(isPlaying) {
+            this.updatePlayPauseUI();
+            addClass(this.template.playPauseIndicator, 'show');
+            this.clearTimer('playPause');
+            this.timers.playPause = setTimeout(() => { removeClass(this.template.playPauseIndicator, 'show'); }, 800);
+        }
+
+        showVolumeIndicator() {
+            this.updateVolumeUI();
+            addClass(this.template.volumeIndicator, 'show');
+            this.clearTimer('volume');
+            this.timers.volume = setTimeout(() => { removeClass(this.template.volumeIndicator, 'show'); }, 1500);
+        }
+
+        showBrightnessIndicator() {
+            this.updateBrightnessUI(this.state.brightness);
+            addClass(this.template.brightnessIndicator, 'show');
+            this.clearTimer('brightness');
+            this.timers.brightness = setTimeout(() => { removeClass(this.template.brightnessIndicator, 'show'); }, 1500);
+        }
+
+        showSpeedIndicator() {
+            this.updateSpeedUI();
+            addClass(this.template.speedIndicator, 'show');
+            this.clearTimer('speed');
+            this.timers.speed = setTimeout(() => { removeClass(this.template.speedIndicator, 'show'); }, 1500);
+        }
+
+        showSkip(direction) {
+            const indicator = direction === 'left' ? this.template.skipLeft : this.template.skipRight;
+            // Clear timer cũ trước khi show mới (fix bug indicator bị stuck)
+            this.clearTimer('skip');
+            removeClass(this.template.skipLeft, 'show');
+            removeClass(this.template.skipRight, 'show');
+            addClass(indicator, 'show');
+            this.timers.skip = setTimeout(() => { removeClass(indicator, 'show'); }, 800);
+        }
+
+        showDoubleTap(direction) {
+            const indicator = direction === 'left' ? this.template.doubleTapLeft : this.template.doubleTapRight;
+            addClass(indicator, 'show');
+            setTimeout(() => { removeClass(indicator, 'show'); }, 500);
+        }
+
+        updateSeekPreview(targetTime) {
+            const delta = targetTime - this.state.currentTime;
+            const deltaEl = this.template.seekPreview.querySelector('.mmt-seek-preview-delta');
+            const timeEl = this.template.seekPreview.querySelector('.mmt-seek-preview-time');
+
+            deltaEl.textContent = (delta >= 0 ? '+' : '') + formatTime(delta);
+            deltaEl.className = 'mmt-seek-preview-delta ' + (delta >= 0 ? 'positive' : 'negative');
+            timeEl.textContent = formatTime(clamp(targetTime, 0, this.state.duration));
+
+            addClass(this.template.seekPreview, 'show');
+            this.clearTimer('seekPreview');
+            this.timers.seekPreview = setTimeout(() => { this.hideSeekPreview(); }, 1000);
+        }
+
+        hideSeekPreview() { removeClass(this.template.seekPreview, 'show'); }
+
+        showResumePrompt(time) {
+            this.template.resumePrompt.querySelector('.mmt-resume-prompt-time').textContent = formatTime(time);
+            this.template.resumePrompt.style.display = 'flex';
+        }
+
+        hideResumePrompt() { this.template.resumePrompt.style.display = 'none'; }
+
+        showControlBar() {
+            addClass(this.container, 'art-hover');
+            this.clearTimer('controlBar');
+            this.timers.controlBar = setTimeout(() => { if (this.state.playing) removeClass(this.container, 'art-hover'); }, 3000);
+        }
+
+        hideControlBar() { if (this.state.playing) removeClass(this.container, 'art-hover'); }
+
+        // ==================== PLAYBACK CONTROL ====================
+        play() { this.video.play(); }
+        pause() { this.video.pause(); }
+        toggle() { this.state.playing ? this.pause() : this.play(); }
+
+        seek(time, autoPlay = true) {
+            time = clamp(time, 0, this.state.duration);
+            this.video.currentTime = time;
+            this.state.currentTime = time;
+            // Tự động play sau khi tua
+            if (autoPlay && !this.state.playing) {
+                this.video.play();
+            }
+        }
+
+        setVolume(vol) {
+            this.state.volume = clamp(vol, 0, 1);
+            this.video.volume = this.state.volume;
+            this.video.muted = false;
+            this.showVolumeIndicator();
+        }
+
+        adjustVolume(delta) { this.setVolume(this.state.volume + delta); }
+        toggleMute() { this.video.muted = !this.video.muted; this.showVolumeIndicator(); }
+
+        setPlaybackRate(rate) {
+            this.state.playbackRate = rate;
+            this.video.playbackRate = rate;
+            this.showSpeedIndicator();
+        }
+
+        changePlaybackRate(direction) {
+            const currentIndex = PLAYBACK_RATES.indexOf(this.state.playbackRate);
+            if (currentIndex === -1) {
+                // Nếu tốc độ hiện tại không có trong danh sách, tìm vị trí gần nhất
+                const newIndex = direction > 0 ? 
+                    PLAYBACK_RATES.findIndex(r => r > this.state.playbackRate) :
+                    PLAYBACK_RATES.filter(r => r < this.state.playbackRate).length - 1;
+                if (newIndex !== -1 && newIndex < PLAYBACK_RATES.length && newIndex >= 0) {
+                    this.setPlaybackRate(PLAYBACK_RATES[newIndex]);
+                }
+            } else {
+                let newIndex = currentIndex + direction;
+                newIndex = clamp(newIndex, 0, PLAYBACK_RATES.length - 1);
+                this.setPlaybackRate(PLAYBACK_RATES[newIndex]);
+            }
+        }
+
+        setBrightness(value) {
+            this.state.brightness = clamp(value, 0, 1);
+            this.updateBrightnessUI(this.state.brightness);
+            this.showBrightnessIndicator();
+        }
+
+        adjustBrightness(delta) { this.setBrightness(this.state.brightness + delta); }
+
+        toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                if (this.container.requestFullscreen) this.container.requestFullscreen();
+                else if (this.container.webkitRequestFullscreen) this.container.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
+        }
+
+        // ==================== VOLUME SLIDER ====================
+        toggleVolumeSlider() {
+            const panel = this.template.volumeSliderPanel;
+            const isShown = panel.classList.contains('show');
+            if (isShown) {
+                this.hideVolumeSlider();
+            } else {
+                this.showVolumeSlider();
+            }
+        }
+
+        showVolumeSlider() {
+            addClass(this.template.volumeSliderPanel, 'show');
+            this.updateVolumeSliderUI();
+        }
+
+        hideVolumeSlider() {
+            removeClass(this.template.volumeSliderPanel, 'show');
+        }
+
+        updateVolumeSliderUI() {
+            const vol = this.state.volume;
+            const percent = Math.round(vol * 100);
+            this.template.volumeSliderFill.style.height = percent + '%';
+            this.template.volumeSliderHandle.style.bottom = percent + '%';
+            this.template.volumeSliderValue.textContent = percent + '%';
+        }
+
+        bindVolumeSliderEvents() {
+            const { volumeSliderContainer, volumeSliderPanel } = this.template;
+            let isDragging = false;
+
+            const getVolumeFromEvent = (e) => {
+                const rect = volumeSliderContainer.getBoundingClientRect();
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const y = clamp(clientY - rect.top, 0, rect.height);
+                return 1 - (y / rect.height);
+            };
+
+            const updateVolume = (e) => {
+                if (!isDragging) return;
+                const vol = getVolumeFromEvent(e);
+                this.setVolume(vol);
+                this.updateVolumeSliderUI();
+            };
+
+            const endDrag = () => {
+                isDragging = false;
+            };
+
+            // Mouse events (desktop)
+            volumeSliderContainer.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                isDragging = true;
+                updateVolume(e);
+            });
+
+            document.addEventListener('mousemove', updateVolume);
+            document.addEventListener('mouseup', endDrag);
+
+            // Touch events (mobile)
+            volumeSliderContainer.addEventListener('touchstart', (e) => {
+                e.stopPropagation();
+                isDragging = true;
+                updateVolume(e);
+            }, { passive: true });
+
+            volumeSliderContainer.addEventListener('touchmove', (e) => {
+                if (isDragging) {
+                    e.preventDefault();
+                    updateVolume(e);
+                }
+            }, { passive: false });
+
+            volumeSliderContainer.addEventListener('touchend', endDrag);
+
+            // Đóng slider khi click ra ngoài
+            document.addEventListener('click', (e) => {
+                if (!volumeSliderPanel.contains(e.target) && !this.template.volumeBtn.contains(e.target)) {
+                    this.hideVolumeSlider();
+                }
+            });
+        }
+
+        // ==================== PROGRESS STORAGE ====================
+        getStorageKey() {
+            const url = this.container.getAttribute('data-url') || '';
+            return STORAGE_KEY_PREFIX + btoa(url);
+        }
+
+        saveProgress() {
+            if (!this.state.duration || this.state.currentTime < 10) return;
+            const progress = { time: this.state.currentTime, duration: this.state.duration, timestamp: Date.now() };
+            localStorage.setItem(this.getStorageKey(), JSON.stringify(progress));
+        }
+
+        loadProgress() {
+            try {
+                const data = localStorage.getItem(this.getStorageKey());
+                if (!data) return;
+                const progress = JSON.parse(data);
+                const now = Date.now();
+                const maxAge = 7 * 24 * 60 * 60 * 1000;
+                if (now - progress.timestamp > maxAge) { localStorage.removeItem(this.getStorageKey()); return; }
+                if (progress.time > 10 && progress.time < progress.duration - 5) { this.showResumePrompt(progress.time); }
+            } catch (e) { console.warn('Failed to load progress', e); }
+        }
+
+        resumeFromStorage() {
+            try {
+                const data = localStorage.getItem(this.getStorageKey());
+                if (!data) return;
+                const progress = JSON.parse(data);
+                this.seek(progress.time, true); // Auto play khi resume
+                this.hideResumePrompt();
+            } catch (e) { console.warn('Failed to resume', e); }
+        }
+
+        clearTimer(name) { if (this.timers[name]) { clearTimeout(this.timers[name]); delete this.timers[name]; } }
+        clearAllTimers() { Object.keys(this.timers).forEach(key => { clearTimeout(this.timers[key]); }); this.timers = {}; }
+
+        destroy() {
+            this.clearAllTimers();
+            this.saveProgress();
+            if (this.container && this.container.parentNode) this.container.parentNode.removeChild(this.container);
+        }
+    }
+
+    // ==================== INITIALIZE ====================
+    // Tìm tất cả container và khởi tạo player
+    function initAllPlayers() {
+        const containers = document.querySelectorAll('.mmt-player-container');
+        containers.forEach(container => {
+            if (!container.mmtPlayer) {
+                container.mmtPlayer = new MMTBlogspotPlayer(container);
+            }
+        });
+    }
+
+    // Tự động khởi tạo khi DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAllPlayers);
+    } else {
+        initAllPlayers();
+    }
+
+    // Expose to global
+    window.MMTBlogspotPlayer = MMTBlogspotPlayer;
+})();
+</script>
+
+<!-- 
+    HƯỚNG DẪN SỬ DỤNG:
+    
+    1. Copy toàn bộ code trên vào bài viết Blogspot (chế độ HTML view)
+    
+    2. Để chỉ định URL video, thêm data-url vào div:
+       <div class="mmt-player-container" data-url="https://example.com/video.mp4">
+    
+    3. Phím tắt:
+       - Space/K: Play/Pause
+       - ←/→: Tua 5s
+       - ↑/↓: Âm lượng
+       - J/L: Tua 10s
+       - F: Fullscreen
+       - M: Mute
+       - Ctrl+,/Ctrl+.: Giảm/Tăng tốc độ (bước 0.1)
+       - Shift+/: Reset tốc độ về 1.0
+    
+    4. Mobile gestures (trong fullscreen):
+       - Double tap trái: Lùi 5s
+       - Double tap phải: Tới 5s
+       - Vuốt dọc trái: Độ sáng
+       - Vuốt dọc phải: Âm lượng
+       - Vuốt ngang: Tua video
+-->
